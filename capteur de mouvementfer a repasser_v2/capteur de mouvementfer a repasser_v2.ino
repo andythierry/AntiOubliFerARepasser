@@ -23,16 +23,19 @@
 
 #define OFF 0
 
-#define LONGUEUR_TEMPO 300000UL //Longueur de la tempo en millisecondes
-#define LONGUEUR_PREAVIS 290000UL //Longueur du preavis d'extinction la tempo en millisecondes
+#define LONGUEUR_TEMPO 180000UL //Longueur de la tempo en millisecondes
+#define LONGUEUR_PREAVIS 175000UL //Longueur du preavis d'extinction la tempo en millisecondes
 #define FREQUENCE_BUZZER 1000 //Longueur de la tempo en millisecondes
-#define LONGUEUR_BUZZ_CONTINU 301000UL //Longueur du preavis d'extinction la tempo en millisecondes
+#define LONGUEUR_BUZZ_CONTINU 182000UL //Longueur du preavis d'extinction la tempo en millisecondes
 
 /*
 
  * Pin Description
 
  */
+float longtemp=(float)LONGUEUR_TEMPO;
+unsigned long longbuzzconti=LONGUEUR_BUZZ_CONTINU;
+unsigned long longpreav=LONGUEUR_PREAVIS;
 unsigned long tempo=0;
 int vibration_Sensor = 2;//pin D2 c'est 5
 int buzz = 3;//pin D3 c'est 6
@@ -94,28 +97,31 @@ void led_blink(void);
 void change(){
 tempo=millis();
 Serial.print("interruption\n");
+longtemp=(float)LONGUEUR_TEMPO;
+longbuzzconti=LONGUEUR_BUZZ_CONTINU;
+longpreav=LONGUEUR_PREAVIS;
 }
 void preavis(){
 
   //reload=((100+LONGUEUR_TEMPO-(millis()-tempo))/10000)*0xF424;
-    reload=(1-((millis()-tempo)/(float)LONGUEUR_TEMPO))*0xF424;
+    reload=(1-((millis()-tempo)/longtemp))*0xF424;
     reload+=3000;
  Serial.println(reload);
 }
 
 void loop() {
 
-Serial.println(LONGUEUR_PREAVIS-(millis()-tempo));
+Serial.println(longpreav-(millis()-tempo));
 Serial.print('\n');
 
-if (millis()-tempo>LONGUEUR_PREAVIS&&millis()-tempo<LONGUEUR_TEMPO){
+if (millis()-tempo>longpreav&&millis()-tempo<longtemp){
 
   Serial.print("Préavis d'extinction dépassé::");
   Serial.println((millis()-tempo));
   preavfuse=HIGH;
   preavis();
 
-}else if(millis()-tempo<LONGUEUR_PREAVIS)
+}else if(millis()-tempo<longpreav)
 {
   
   preavfuse=LOW;
@@ -123,7 +129,7 @@ if (millis()-tempo>LONGUEUR_PREAVIS&&millis()-tempo<LONGUEUR_TEMPO){
 }
 
 
-if ((millis()-tempo>LONGUEUR_TEMPO)&&(millis()-tempo<LONGUEUR_BUZZ_CONTINU)){
+if ((millis()-tempo>longtemp)&&(millis()-tempo<longbuzzconti)){
 
   Serial.print("Temps Ecoulé\n");
   Serial.println((millis()-tempo));
@@ -132,12 +138,16 @@ if ((millis()-tempo>LONGUEUR_TEMPO)&&(millis()-tempo<LONGUEUR_BUZZ_CONTINU)){
   preavfuse=LOW;
    digitalWrite(buzz, HIGH); 
 }
-if (millis()-tempo>LONGUEUR_BUZZ_CONTINU){
+if (millis()-tempo>longbuzzconti){
   preavfuse=LOW;
   Serial.print("Fin du buzz continu\n");
   Serial.println((millis()-tempo));
   digitalWrite(buzz, LOW); 
    reload = 0xF424;
+   longtemp=longtemp+(float)LONGUEUR_TEMPO;
+   longbuzzconti=longbuzzconti+LONGUEUR_BUZZ_CONTINU;
+   longpreav=longtemp;
+
 }
 }
 
