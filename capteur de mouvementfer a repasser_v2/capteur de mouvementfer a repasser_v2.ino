@@ -100,6 +100,7 @@ Serial.print("interruption\n");
 longtemp=(float)LONGUEUR_TEMPO;
 longbuzzconti=LONGUEUR_BUZZ_CONTINU;
 longpreav=LONGUEUR_PREAVIS;
+digitalWrite(buzz, LOW); 
 }
 void preavis(){
 
